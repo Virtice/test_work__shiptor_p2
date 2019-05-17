@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\forms\RegisterForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -81,7 +82,27 @@ class SiteController extends Controller
         }
 
         $model->password = '';
+
         return $this->render('login', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionRegister()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+
+        // TODO переделать эту хрень. Модель без зависимостей, а логику вынести в компонент
+        $model = Yii::createObject(RegisterForm::class);
+        if ($model->load(Yii::$app->request->post()) && $model->register()) {
+            return $this->render('successRegister', [
+                'model' => $model,
+            ]);
+        }
+
+        return $this->render('register', [
             'model' => $model,
         ]);
     }
@@ -111,6 +132,7 @@ class SiteController extends Controller
 
             return $this->refresh();
         }
+
         return $this->render('contact', [
             'model' => $model,
         ]);
